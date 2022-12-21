@@ -6,3 +6,4 @@ Feature: Behat Snapshots plugin in the LMS.
 
   Scenario: It works.
     Then I should see "Behat Snapshots"
+    And the snapshot should match
