@@ -1,0 +1,3 @@
+# Behat Snapshots Plugin
+
+WIP
