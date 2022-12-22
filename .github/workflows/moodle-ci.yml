@@ -56,3 +56,10 @@ jobs:
 
       - name: Behat features
         run: moodle-plugin-ci behat
+
+      - name: Upload Snapshot failures
+        uses: actions/upload-artifact@v3
+        if: ${{ failure() }}
+        with:
+          name: snapshot_failures
+          path: moodle/local/behatsnapshots/snapshots/failures/*

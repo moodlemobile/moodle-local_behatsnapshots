@@ -2,13 +2,25 @@
 
 use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\Mink\Exception\ExpectationException;
+use local_behatsnapshots\snapshots\behat_snapshot;
 
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
 class behat_snapshots extends behat_base {
 
+    /**
+     * @var bool
+     */
     protected $createssnapshots;
+
+    /**
+     * @var string
+     */
     protected $currentscenario;
+
+    /**
+     * @var int
+     */
     protected $currentstep;
 
     /**
@@ -28,14 +40,12 @@ class behat_snapshots extends behat_base {
     }
 
     /**
-     * @Then The snapshot should match
+     * @Then the :type should match the snapshot
      */
-    public function the_snapshot_should_match() {
-        $snapshotname = "{$this->currentscenario}_{$this->currentstep}";
-        $snapshotfile = $this->get_snapshots_directory() . DIRECTORY_SEPARATOR . "$snapshotname.html";
-        $snapshot = trim($this->get_snapshot());
+    public function the_snapshot_should_match(string $type) {
+        $snapshot = $this->create_snapshot($type);
 
-        if (!file_exists($snapshotfile)) {
+        if (!$snapshot->exists()) {
             if (!$this->createssnapshots) {
                 throw new ExpectationException(
                     "There isn't a snapshot for step {$this->currentstep}, please create one or use the @creates_snapshots tag to mint it",
@@ -43,59 +53,22 @@ class behat_snapshots extends behat_base {
                 );
             }
 
-            file_put_contents($snapshotfile, $snapshot);
-
+            $snapshot->create($this->getSession());
             return;
         }
 
-        $previoussnapshot = trim(file_get_contents($snapshotfile));
-
-        if ($snapshot !== $previoussnapshot) {
-            $this->diff_snapshots($snapshot, $previoussnapshot);
+        if (!$snapshot->matches()) {
+            echo $snapshot->diff();
 
             throw new ExpectationException("Snapshot doesn't match", $this->getSession()->getDriver());
         }
     }
 
-    protected function get_snapshot(): string {
-        $content = $this->getSession()->getPage()->getContent();
+    protected function create_snapshot(string $type): behat_snapshot {
+        $type = strtolower($type);
+        $snapshotclass = 'local_behatsnapshots\\snapshots\\'.$type.'_snapshot';
 
-        if (str_starts_with($content, '<html><head></head><body>')) {
-            $content = preg_replace("/^<html><head><\/head><body>/", '', $content);
-            $content = preg_replace("/<\/body><\/html>$/", '', $content);
-        }
-
-        return $content;
-    }
-
-    protected function diff_snapshots(string $snapshot, string $previoussnapshot): void {
-        $snapshotlines = explode("\n", $snapshot);
-        $previoussnapshotlines = explode("\n", $previoussnapshot);
-
-        for ($i = 0; $i < count($snapshotlines); $i++) {
-            if ($snapshotlines[$i] === $previoussnapshotlines[$i]) {
-                continue;
-            }
-
-            echo "before: $previoussnapshotlines[$i]\n";
-            echo "   now: $snapshotlines[$i]\n";
-        }
-    }
-
-    protected function get_snapshots_directory(): string {
-        global $CFG;
-
-        $snapshotsdirectory = $CFG->behat_snapshots_path ?? '';
-
-        if (empty($snapshotsdirectory)) {
-            throw new Exception('Missing $CFG->behat_snapshots_path config.');
-        }
-
-        if (!is_dir($snapshotsdirectory) && !mkdir($snapshotsdirectory, 0777, true)) {
-            throw new Exception("Cannot create $snapshotsdirectory directory, check permissions.");
-        }
-
-        return $snapshotsdirectory;
+        return new $snapshotclass($this->getSession(), "{$this->currentscenario}_{$this->currentstep}");
     }
 
     protected function get_scenario_slug(ScenarioScope $scope): string {
