@@ -45,16 +45,17 @@ class ui_snapshot extends behat_snapshot {
     }
 
     public function diff(): string {
-        $directory = $this->store_failure_diffs();
+        $failuresdirectory = $this->store_failure_diffs();
 
         if (!$this->imagick_available()) {
-            return "Snapshots don't match (Compare them looking at $directory)\n" .
-                "Imagick extension is missing, install it if you want to get better image diffs";
+            return "You can compare the differences looking at the files in $failuresdirectory.\n" .
+                "Imagick extension is missing, install it if you want to get better image diffs.";
         }
 
         file_put_contents($this->get_file_path('-diff', 'failures'), $this->diffimage);
 
-        return "Snapshots are {$this->diff} different (Compare them looking at $directory)";
+        return "Snapshots are {$this->diff} different.\n" .
+            "You can compare the differences looking at the files in $failuresdirectory.";
     }
 
     protected function imagick_available(): bool {

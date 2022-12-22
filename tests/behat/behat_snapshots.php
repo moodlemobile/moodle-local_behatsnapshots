@@ -48,7 +48,7 @@ class behat_snapshots extends behat_base {
         if (!$snapshot->exists()) {
             if (!$this->createssnapshots) {
                 throw new ExpectationException(
-                    "There isn't a snapshot for step {$this->currentstep}, please create one or use the @creates_snapshots tag to mint it",
+                    "There isn't a snapshot for step {$this->currentstep}, use the @creates_snapshots tag to create it.",
                     $this->getSession()->getDriver()
                 );
             }
@@ -60,7 +60,7 @@ class behat_snapshots extends behat_base {
         if (!$snapshot->matches()) {
             echo $snapshot->diff();
 
-            throw new ExpectationException("Snapshot doesn't match", $this->getSession()->getDriver());
+            throw new ExpectationException("Snapshots don't match", $this->getSession()->getDriver());
         }
     }
 
