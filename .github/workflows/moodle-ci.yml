@@ -55,7 +55,7 @@ jobs:
         run: moodle-plugin-ci validate
 
       - name: Behat features
-        run: moodle-plugin-ci behat
+        run: moodle-plugin-ci behat --profile chrome
 
       - name: Upload Snapshot failures
         uses: actions/upload-artifact@v3

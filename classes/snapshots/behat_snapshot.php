@@ -59,6 +59,15 @@ abstract class behat_snapshot {
 
     abstract public function diff(): string;
 
+    protected function store_failure_diffs(): string {
+        $directory = $this->get_directory('failures');
+
+        file_put_contents($this->get_file_path('-original', 'failures'), $this->get_stored_content());
+        file_put_contents($this->get_file_path('-changed', 'failures'), $this->get_current_content());
+
+        return $directory;
+    }
+
     protected function get_directory(?string $subdirectory = null): string {
         global $CFG;
 

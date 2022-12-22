@@ -2,21 +2,85 @@
 
 namespace local_behatsnapshots\snapshots;
 
+use Imagick;
+
 class ui_snapshot extends behat_snapshot {
 
     protected $extension = 'png';
 
+    /**
+     * @var Imagick
+     */
+    protected $currentimage;
+
+    /**
+     * @var Imagick
+     */
+    protected $storedimage;
+
+    /**
+     * @var float
+     */
+    protected $diff;
+
+    /**
+     * @var Imagick
+     */
+    protected $diffimage;
+
+    public function matches(): bool {
+        if (!$this->imagick_available()) {
+            return parent::matches();
+        }
+
+        global $CFG;
+
+        [$diffimage, $diff] = $this->get_stored_image()->compareImages($this->get_current_image(), Imagick::METRIC_MEANSQUAREERROR);
+
+        $threshold = $CFG->behat_snapshots_image_threshold ?? 0;
+        $this->diff = $diff;
+        $this->diffimage = $diffimage;
+
+        return $diff <= $threshold;
+    }
+
     public function diff(): string {
-        $directory = $this->get_directory('failures');
+        $directory = $this->store_failure_diffs();
 
-        file_put_contents($this->get_file_path('-original', 'failures'), $this->get_stored_content());
-        file_put_contents($this->get_file_path('-changed', 'failures'), $this->get_current_content());
+        if (!$this->imagick_available()) {
+            return "Snapshots don't match (Compare them looking at $directory)\n" .
+                "Imagick extension is missing, install it if you want to get better image diffs";
+        }
 
-        return "Find snapshot differences in $directory";
+        file_put_contents($this->get_file_path('-diff', 'failures'), $this->diffimage);
+
+        return "Snapshots are {$this->diff} different (Compare them looking at $directory)";
+    }
+
+    protected function imagick_available(): bool {
+        return class_exists('Imagick');
     }
 
     protected function load_content() {
         return $this->session->getScreenshot();
+    }
+
+    protected function get_stored_image() {
+        if (is_null($this->storedimage)) {
+            $this->storedimage = new Imagick($this->get_file_path());
+        }
+
+        return $this->storedimage;
+    }
+
+    protected function get_current_image() {
+        if (is_null($this->currentimage)) {
+            $this->currentimage = new Imagick();
+
+            $this->currentimage->readImageBlob($this->get_current_content());
+        }
+
+        return $this->currentimage;
     }
 
 }

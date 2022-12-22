@@ -7,6 +7,8 @@ class html_snapshot extends behat_snapshot {
     protected $extension = 'html';
 
     public function diff(): string {
+        $this->store_failure_diffs();
+
         $storedhtml = $this->get_stored_content();
         $currenthtml = $this->get_current_content();
         $storedhtmllines = explode("\n", $storedhtml);
