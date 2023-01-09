@@ -4,8 +4,18 @@ Feature: Behat Snapshots plugin in the LMS.
   Background:
     Given I visit "/local/behatsnapshots/index.php"
 
-  @javascript
-  Scenario: It works.
+  Scenario: It works without javascript.
     Then I should see "Behat Snapshots"
     And the HTML should match the snapshot
+
+  @javascript
+  Scenario: It works with javascript.
+    Then I should see "Behat Snapshots"
+    And the HTML should match the snapshot
+    And the UI should match the snapshot
+
+  @javascript @app
+  Scenario: It works in the app.
+    Given I entered the app as "admin"
+    Then the HTML should match the snapshot
     And the UI should match the snapshot

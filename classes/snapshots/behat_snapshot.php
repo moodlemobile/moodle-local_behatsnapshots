@@ -18,6 +18,11 @@ abstract class behat_snapshot {
     protected $name;
 
     /**
+     * @var array
+     */
+    protected $options;
+
+    /**
      * @var string|null
      */
     protected $extension = null;
@@ -32,9 +37,10 @@ abstract class behat_snapshot {
      */
     protected $storedcontent;
 
-    public function __construct(Session $session, string $name) {
+    public function __construct(Session $session, string $name, array $options = []) {
         $this->session = $session;
         $this->name = $name;
+        $this->options = $options;
     }
 
     public function exists(): bool {
