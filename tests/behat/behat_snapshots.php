@@ -16,6 +16,11 @@ class behat_snapshots extends behat_base {
     /**
      * @var bool
      */
+    protected $overridessnapshots;
+
+    /**
+     * @var bool
+     */
     protected $ismobileapp;
 
     /**
@@ -33,6 +38,7 @@ class behat_snapshots extends behat_base {
     */
     public function before_scenario(ScenarioScope $scope) {
         $this->createssnapshots = $scope->getFeature()->hasTag('creates_snapshots') || $scope->getScenario()->hasTag('creates_snapshots');
+        $this->overridessnapshots = $scope->getFeature()->hasTag('overrides_snapshots') || $scope->getScenario()->hasTag('overrides_snapshots');
         $this->ismobileapp = $scope->getFeature()->hasTag('app') || $scope->getScenario()->hasTag('app');
         $this->currentscenario = $this->get_scenario_slug($scope);
         $this->currentstep = 0;
@@ -51,6 +57,12 @@ class behat_snapshots extends behat_base {
     public function the_snapshot_should_match(string $type) {
         $snapshot = $this->create_snapshot($type);
 
+        if ($this->overridessnapshots) {
+            $snapshot->store($this->getSession());
+
+            return;
+        }
+
         if (!$snapshot->exists()) {
             if (!$this->createssnapshots) {
                 throw new ExpectationException(
@@ -59,7 +71,7 @@ class behat_snapshots extends behat_base {
                 );
             }
 
-            $snapshot->create($this->getSession());
+            $snapshot->store($this->getSession());
             return;
         }
 

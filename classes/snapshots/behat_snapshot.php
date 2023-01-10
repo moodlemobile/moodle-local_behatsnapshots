@@ -49,7 +49,7 @@ abstract class behat_snapshot {
         return file_exists($filepath);
     }
 
-    public function create(): void {
+    public function store(): void {
         $filepath = $this->get_file_path();
         $content = $this->get_current_content();
 

@@ -22,7 +22,9 @@ $CFG->behat_snapshots_path = '/var/www/html/local/behatsnapshots/snapshots';
 $CFG->behat_snapshots_image_threshold = 0.001;
 ```
 
-Once that is configured, you can start using the following steps in your tests:
+### Comparing snapshots
+
+In order to compare snapshots, you'll need to use one of the following steps in your tests:
 
 ```Gherkin
 # Compare the HTML of the current page with the stored snapshot.
@@ -33,9 +35,15 @@ Then the HTML should match the snapshot
 Then the UI should match the snapshot
 ```
 
-The first time you run the tests, this command will fail because the snapshots don't exist yet. In order to create them, you can add the `@creates_snapshots` tag and run them again. This time, the snapshot files will be created. It's not recommended to keep this tag in tests at all times; it should only be used for minting new snapshots when they are missing.
+### Managing snapshots
 
-Once the snapshots are created, you have to commit them with your source code because they will be used for comparison in CI.
+The first time you run the tests, they will fail because the snapshots don't exist yet. You can add the `@creates_snapshots` tag and it will create snapshots instead of running any comparisons.
+
+Later on, it is possible that you introduce some changes in the code that are intentional and don't cause a regression. In this case, you can either delete the existing snapshots and use `@creates_snapshots` again, or use the `@overrides_snapshots` tag which will override the snapshots, without checking for their existence or running any comparisons.
+
+It is important that you commmit the snapshot files generated using this process in the repository, so that other developers and CI environments rely on these validated snapshots, rather than generating new ones every time.
+
+Also, make sure that you are not including these tags in the repository, and only use them to generate the snapshots locally. The `@overrides_snapshots` tag is specially dangerous, because it won't run any comparisons an can render these tests useless.
 
 ## Examples
 
