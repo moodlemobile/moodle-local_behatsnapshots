@@ -70,6 +70,10 @@ abstract class behat_snapshot {
 
     abstract public function diff(): string;
 
+    protected function is_mobile(): bool {
+        return $this->options['mobile'] ?? false;
+    }
+
     protected function store_failure_diffs(): string {
         $directory = $this->get_directory('failures');
 

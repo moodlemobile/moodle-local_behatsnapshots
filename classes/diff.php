@@ -4,9 +4,9 @@ namespace local_behatsnapshots;
 
 class diff {
 
-    public static function html(string $original, string $changed): ?string {
-        $originallines = explode("\n", static::normalize_html($original));
-        $changedlines = explode("\n", static::normalize_html($changed));
+    public static function html(string $original, string $changed, array $replacements = []): ?string {
+        $originallines = explode("\n", static::normalize_html($original, $replacements));
+        $changedlines = explode("\n", static::normalize_html($changed, $replacements));
         $totallines = max(count($originallines), count($changedlines));
         $diffcounter = 0;
         $diff = '';
@@ -62,7 +62,13 @@ class diff {
         return static::get_text_diff($original, $changed);
     }
 
-    private static function normalize_html(string $html): string {
+    private static function normalize_html(string $html, array $replacements = []): string {
+        // Apply replacements.
+        foreach ($replacements as $regex => $replacement) {
+            $html = preg_replace($regex, $replacement, $html);
+        }
+
+        // Sort classes.
         preg_match_all('/class="([^"]+)"/', $html, $matches);
 
         foreach ($matches[1] as $match) {

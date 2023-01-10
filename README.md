@@ -73,6 +73,32 @@ With the snapshot above, the following html would match:
 </div>
 ```
 
+#### Replacements
+
+If some parts are known to be problematic but are not relevant to the HTML output, the can be replaced using the `behat_snapshots_replacements` configuration.
+
+For example, given the following configuration:
+
+```php
+$CFG->behat_snapshots_replacements = [
+    '/ style=".*"/' => '',
+];
+```
+
+The following two HTML snapshots would be considered equal, because the style attributes would be removed:
+
+```html
+<div class="foo bar" style="display: block;">
+    Hi there!
+</div>
+```
+
+```html
+<div style="display: block;" class="foo bar">
+    Hi there!
+</div>
+```
+
 ### Testing the Moodle App
 
 This plugin comes with built-in support to test Moodle App UI, so it should work out of the box.

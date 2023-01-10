@@ -20,7 +20,7 @@ class html_snapshot extends behat_snapshot {
 
         $storedhtml = $this->get_stored_content();
         $currenthtml = $this->get_current_content();
-        $this->diff = diff::html($storedhtml, $currenthtml);
+        $this->diff = diff::html($storedhtml, $currenthtml, $this->get_replacements());
 
         return empty($this->diff);
     }
@@ -41,11 +41,28 @@ class html_snapshot extends behat_snapshot {
         $content = $this->session->getPage()->getContent();
         $content = $this->clean_padding_content($content);
 
-        if ($this->options['mobile'] ?? false) {
+        if ($this->is_mobile()) {
             $content = $this->normalize_mobile_app_content($content);
         }
 
         return trim($content);
+    }
+
+    protected function get_replacements(): array {
+        global $CFG;
+
+        if (isset($CFG->behat_snapshots_replacements)) {
+            return $CFG->behat_snapshots_replacements;
+        }
+
+        if ($this->is_mobile()) {
+            return [
+                '/ style=""/' => '',
+                '/ role="tablist"/' => '',
+            ];
+        }
+
+        return [];
     }
 
     protected function clean_padding_content(string $content): string {
