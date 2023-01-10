@@ -52,8 +52,13 @@ abstract class behat_snapshot {
     public function store(): void {
         $filepath = $this->get_file_path();
         $content = $this->get_current_content();
+        $existed = file_exists($filepath);
 
         file_put_contents($filepath, $content);
+
+        if (!$existed) {
+            chmod($filepath, 0666);
+        }
     }
 
     public function matches(): bool {
