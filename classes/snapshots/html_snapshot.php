@@ -2,43 +2,39 @@
 
 namespace local_behatsnapshots\snapshots;
 
+use local_behatsnapshots\diff;
+
 class html_snapshot extends behat_snapshot {
 
     protected $extension = 'html';
 
-    public function diff(): string {
-        $failuresdirectory = $this->store_failure_diffs();
-        $storedhtml = $this->get_stored_content();
-        $currenthtml = $this->get_current_content();
-        $storedhtmllines = explode("\n", $storedhtml);
-        $currenthtmllines = explode("\n", $currenthtml);
-        $totallines = max(count($storedhtmllines), count($currenthtmllines));
-        $diffcounter = 0;
-        $diff = '';
+    /**
+     * @var string|null
+     */
+    protected $diff;
 
-        for ($line = 0; $line < $totallines; $line++) {
-            $storedline = $storedhtmllines[$line] ?? '';
-            $currentline = $currenthtmllines[$line] ?? '';
-
-            if ($storedline === $currentline) {
-                continue;
-            }
-
-            $diffcounter++;
-
-            $diff .= "#$diffcounter\n";
-            $diff .= "< $storedline\n";
-            $diff .= "---\n";
-            $diff .= "> $currentline\n";
+    public function matches(): bool {
+        if (parent::matches()) {
+            return true;
         }
 
-        file_put_contents($this->get_file_path('', 'failures', 'diff'), $diff);
+        $storedhtml = $this->get_stored_content();
+        $currenthtml = $this->get_current_content();
+        $this->diff = diff::html($storedhtml, $currenthtml);
 
-        if ($diffcounter > 6 || strlen($diff) > 300) {
+        return empty($this->diff);
+    }
+
+    public function diff(): string {
+        $failuresdirectory = $this->store_failure_diffs();
+
+        file_put_contents($this->get_file_path('', 'failures', 'diff'), $this->diff);
+
+        if (strlen($this->diff) > 300) {
             return "You can compare the differences looking at the files in $failuresdirectory.";
         }
 
-        return $diff;
+        return $this->diff;
     }
 
     protected function load_content() {
@@ -77,20 +73,6 @@ class html_snapshot extends behat_snapshot {
         $content = preg_replace("/_ng(host|content)[^=]+=\"[^\"]*\"/", '', $content);
         $content = preg_replace("/^<script src=\"runtime(\.\w+)?\.js\".*$/m", '', $content);
         $content = preg_replace("/\/persistent\/sites\/\w+\/filepool\//", '/persistent/sites/[siteid]/filepool/', $content);
-
-        // Sort class names.
-        preg_match_all('/class="([^"]+)"/', $content, $matches);
-
-        foreach ($matches[1] as $match) {
-            $classes = array_filter(explode(' ', $match), function($class) {
-                return !str_starts_with($class, 'ng-tns');
-            });
-
-            sort($classes);
-
-            $sortedclasses = implode(' ', $classes);
-            $content = str_replace("class=\"$match\"", "class=\"$sortedclasses\"", $content);
-        }
 
         return $content;
     }

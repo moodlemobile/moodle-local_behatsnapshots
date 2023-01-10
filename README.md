@@ -45,6 +45,40 @@ It is important that you commmit the snapshot files generated using this process
 
 Also, make sure that you are not including these tags in the repository, and only use them to generate the snapshots locally. The `@overrides_snapshots` tag is specially dangerous, because it won't run any comparisons an can render these tests useless.
 
+### Comparing HTML
+
+Ideally, HTML snapshots comparisons would only fail when there are relevant differences for users. For example, changing the order of attributes in elements or having more or less whitespace is irrelevant when HTML is rendered in the DOM.
+
+Alternatively, it's also possible that sometimes parts of the HTML are expected to change. For example, if some part is showing the current date or a user id that is generated randomly in tests.
+
+However, with the current implementation, HTML comparison is mostly string based. In order to improve that, there are a couple of configuration options that can be tweaked to improve this.
+
+#### Regular expressions
+
+If some parts are expected to change, they can be replaced with regular expressions which will be used when comparing the lines. Regexes should be encapsulated within `[[]]`, check out the following example for reference:
+
+```html
+<div>
+    <h1>Welcome</h1>
+    <p>Hello [[[\w\s]+]], today is [[(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)]].</p>
+</div>
+```
+
+With the snapshot above, the following html would match:
+
+```html
+<div>
+    <h1>Welcome</h1>
+    <p>Hello John Doe, today is Monday.</p>
+</div>
+```
+
+### Testing the Moodle App
+
+This plugin comes with built-in support to test Moodle App UI, so it should work out of the box.
+
+However, keep in mind that given the nature of the app and its heavy reliance on JavaScript, HTML tests may be more flaky than ideal. You should be able to improve these using the techniques described in [Comparing HTML](#comparing-html).
+
 ## Examples
 
 If you want to see some examples of how to use this plugin and what the snapshots look like, this plugin uses itself in its tests:
