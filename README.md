@@ -41,7 +41,7 @@ The first time you run the tests, they will fail because the snapshots don't exi
 
 Later on, it is possible that you introduce some changes in the code that are intentional and don't cause a regression. In this case, you can either delete the existing snapshots and use `@creates_snapshots` again, or use the `@overrides_snapshots` tag which will override the snapshots, without checking for their existence or running any comparisons.
 
-It is important that you commmit the snapshot files generated using this process in the repository, so that other developers and CI environments rely on these validated snapshots, rather than generating new ones every time.
+It is important that you commit the snapshot files generated using this process in the repository, so that other developers and CI environments rely on these validated snapshots, rather than generating new ones every time.
 
 Also, make sure that you are not including these tags in the repository, and only use them to generate the snapshots locally. The `@overrides_snapshots` tag is specially dangerous, because it won't run any comparisons an can render these tests useless.
 
