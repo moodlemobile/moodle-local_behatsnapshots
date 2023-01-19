@@ -51,7 +51,7 @@ jobs:
           moodle-plugin-ci add-config "\$CFG->behat_snapshots_path = '`pwd`/moodle/local/behatsnapshots/snapshots';"
         env:
           DB: pgsql
-          MOODLE_BRANCH: MOODLE_401_STABLE
+          MOODLE_BRANCH: v4.1.0
           MOODLE_BEHAT_DEFAULT_BROWSER: chrome
           MOODLE_BEHAT_IONIC_WWWROOT: http://localhost:8100
 
@@ -63,6 +63,9 @@ jobs:
 
       - name: Validating
         run: moodle-plugin-ci validate
+
+      - name: PHPUnit
+        run: moodle-plugin-ci phpunit
 
       - name: Behat features
         run: moodle-plugin-ci behat --profile chrome
