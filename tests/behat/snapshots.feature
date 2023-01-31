@@ -11,7 +11,9 @@ Feature: Behat Snapshots plugin in the LMS.
   @javascript
   Scenario: It works with javascript.
     Then I should see "Behat Snapshots"
-    And the HTML should match the snapshot
+
+    When I replace "Behat Snapshots" within "h1" with "Behat Snapshots with replacements"
+    Then the HTML should match the snapshot
     And the UI should match the snapshot
 
   @javascript @app

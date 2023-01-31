@@ -1,0 +1,10 @@
+{
+  "name": "local_behatsnapshots",
+  "private": true,
+  "scripts": {
+    "build": "esbuild --minify --bundle --outfile=assets/local_behatsnapshots.js assets/local_behatsnapshots.ts"
+  },
+  "devDependencies": {
+    "esbuild": "^0.17.5"
+  }
+}

@@ -99,6 +99,20 @@ The following two HTML snapshots would be considered equal, because the style at
 </div>
 ```
 
+### Comparing UI
+
+In some ocassions, there may be parts of the UI that are variable. Those should be minimised by setting predictable values with generators, but if that's not possible the following helpers may be useful. You will normally call these before taking a UI snapshot.
+
+#### Replacements
+
+You can replace text in the UI using the following step:
+
+```Gherkin
+When I replace "/.*/" within "h1" with "Replacement text"
+```
+
+The first argument will be the string to search for, or a regular expression to match against if it's padded within `/`. The second argument will be a CSS selector to specify where the replacement will happen. And the last argument will be the text to replace matches with.
+
 ### Testing the Moodle App
 
 This plugin comes with built-in support to test Moodle App UI, so it should work out of the box.

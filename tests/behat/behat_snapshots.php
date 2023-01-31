@@ -52,6 +52,17 @@ class behat_snapshots extends behat_base {
     }
 
     /**
+     * @Given I replace :text within :selector with :replacement
+     */
+    public function i_replace_with(string $text, string $selector, string $replacement) {
+        $text = json_encode($text);
+        $selector = json_encode($selector);
+        $replacement = json_encode($replacement);
+
+        $this->js("replaceText($selector, $text, $replacement)");
+    }
+
+    /**
      * @Then the :type should match the snapshot
      */
     public function the_snapshot_should_match(string $type) {
@@ -97,6 +108,16 @@ class behat_snapshots extends behat_base {
         $text = preg_replace('/[^a-z0-9-]/', '', $text);
 
         return $text;
+    }
+
+    protected function js(string $script) {
+        $session = $this->getSession();
+
+        if ($session->evaluateScript("!window.localBehatSnapshots")) {
+            $session->executeScript(file_get_contents(__DIR__ . '/../../assets/local_behatsnapshots.js'));
+        }
+
+        return $session->evaluateScript("window.localBehatSnapshots.$script");
     }
 
 }
