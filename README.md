@@ -113,6 +113,22 @@ When I replace "/.*/" within "h1" with "Replacement text"
 
 The first argument will be the string to search for, or a regular expression to match against if it's padded within `/`. The second argument will be a CSS selector to specify where the replacement will happen. And the last argument will be the text to replace matches with.
 
+#### Styles
+
+If you need to change CSS, you can set inline styles using the following step:
+
+```Gherkin
+When I set "h1" styles to "background" "red"
+```
+
+The first argument is the CSS selector to find the element or elements affected, the second is the name of the property to set, and the third is the value. The example above would result in the following styles:
+
+```html
+<h1 style="background: red">
+    Title
+</h1>
+```
+
 ### Testing the Moodle App
 
 This plugin comes with built-in support to test Moodle App UI, so it should work out of the box.

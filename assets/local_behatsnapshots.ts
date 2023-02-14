@@ -29,4 +29,16 @@ function replaceText(selector: string, text: string, replacement: string): void 
     }
 }
 
-(window as any).localBehatSnapshots = { replaceText };
+function setStyles(selector: string, property: string, value: string): void {
+    const elements = document.querySelectorAll(selector);
+
+    for (const element of elements) {
+        if (!(element instanceof HTMLElement)) {
+            continue;
+        }
+
+        element.style.setProperty(property, value);
+    }
+}
+
+(window as any).localBehatSnapshots = { replaceText, setStyles };

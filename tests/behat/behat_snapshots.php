@@ -63,6 +63,17 @@ class behat_snapshots extends behat_base {
     }
 
     /**
+     * @Given I set :selector styles to :property :value
+     */
+    public function i_set_styles_to(string $selector, string $property, string $value) {
+        $selector = json_encode($selector);
+        $property = json_encode($property);
+        $value = json_encode($value);
+
+        $this->js("setStyles($selector, $property, $value)");
+    }
+
+    /**
      * @Then the :type should match the snapshot
      */
     public function the_snapshot_should_match(string $type) {

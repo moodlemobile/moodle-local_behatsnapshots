@@ -13,6 +13,7 @@ Feature: Behat Snapshots plugin in the LMS.
     Then I should see "Behat Snapshots"
 
     When I replace "Behat Snapshots" within "h1" with "Behat Snapshots with replacements"
+    And I set "h1" styles to "color" "red"
     Then the HTML should match the snapshot
     And the UI should match the snapshot
 
