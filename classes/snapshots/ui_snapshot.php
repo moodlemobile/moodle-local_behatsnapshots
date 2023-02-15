@@ -35,9 +35,9 @@ class ui_snapshot extends behat_snapshot {
 
         global $CFG;
 
-        [$diffimage, $diff] = $this->get_stored_image()->compareImages($this->get_current_image(), Imagick::METRIC_MEANSQUAREERROR);
+        [$diffimage, $diff] = $this->get_stored_image()->compareImages($this->get_current_image(), Imagick::METRIC_ROOTMEANSQUAREDERROR);
 
-        $threshold = $CFG->behat_snapshots_image_threshold ?? 0;
+        $threshold = $CFG->behat_snapshots_image_threshold ?? 0.005;
         $this->diff = $diff;
         $this->diffimage = $diffimage;
 
