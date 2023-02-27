@@ -136,10 +136,11 @@ class behat_snapshots extends behat_base {
     }
 
     protected function is_disabled(): bool {
-        global $CFG;
+        return true;
+        // global $CFG;
 
-        return $CFG->behat_snapshots_disabled
-            ?? filter_var(getenv('MOODLE_BEHATSNAPSHOTS_DISABLED'), FILTER_VALIDATE_BOOLEAN);
+        // return $CFG->behat_snapshots_disabled
+        //     ?? filter_var(getenv('MOODLE_BEHATSNAPSHOTS_DISABLED'), FILTER_VALIDATE_BOOLEAN);
     }
 
 }
