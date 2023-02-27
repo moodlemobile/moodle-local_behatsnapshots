@@ -136,6 +136,10 @@ This plugin comes with built-in support to test Moodle App UI, so it should work
 
 However, keep in mind that given the nature of the app and its heavy reliance on JavaScript, HTML tests may be more flaky than ideal. You should be able to improve these using the techniques described in [Comparing HTML](#comparing-html).
 
+### Disable snapshots
+
+If you want to disable running snapshot comparisons in the current environment, you can set the `MOODLE_BEHATSNAPSHOTS_DISABLED` env variable or the `$CFG->behat_snapshots_disabled` config to `true`.
+
 ## Examples
 
 If you want to see some examples of how to use this plugin and what the snapshots look like, this plugin uses itself in its tests:

@@ -77,6 +77,10 @@ class behat_snapshots extends behat_base {
      * @Then the :type should match the snapshot
      */
     public function the_snapshot_should_match(string $type) {
+        if ($this->is_disabled()) {
+            return;
+        }
+
         $snapshot = $this->create_snapshot($type);
 
         if ($this->overridessnapshots) {
@@ -129,6 +133,13 @@ class behat_snapshots extends behat_base {
         }
 
         return $session->evaluateScript("window.localBehatSnapshots.$script");
+    }
+
+    protected function is_disabled(): bool {
+        global $CFG;
+
+        return $CFG->behat_snapshots_disabled
+            ?? filter_var(getenv('MOODLE_BEHATSNAPSHOTS_DISABLED'), FILTER_VALIDATE_BOOLEAN);
     }
 
 }
