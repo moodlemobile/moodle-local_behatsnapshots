@@ -147,3 +147,30 @@ If you want to see some examples of how to use this plugin and what the snapshot
 - You can find some tests in the [snapshots.feature](tests/behat/snapshots.feature) file.
 - You can find some snapshots in the [snapshots](snapshots) folder.
 - The plugin is configured in CI using Github Actions, you can find the configuration in [moodle-ci.yml](.github/workflows/moodle-ci.yml).
+
+### HTML diff
+
+This is how an HTML diff looks:
+
+```diff
+#1 (line 3)
+<     <p>WIP</p>
+---
+>     <p>This has changed</p>
+```
+
+### UI diff
+
+This is how a UI diff looks:
+
+#### Original
+
+![Original image](docs/original.png)
+
+#### Changed
+
+![Changed image](docs/changed.png)
+
+#### Diff
+
+![Diff image](docs/diff.png)
