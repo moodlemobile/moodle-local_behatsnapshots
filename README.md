@@ -11,8 +11,15 @@ In order to use the custom steps, you need to include this plugin in your Moodle
 You'll also need to add the following attributes in your `config.php`:
 
 ```php
-// Configure where snapshot files will be created and read from.
+// (optional) Configure where snapshot files will be created and read from.
+//
+// Default value: Feature file directory + /snapshots.
 $CFG->behat_snapshots_path = '/var/www/html/local/behatsnapshots/snapshots';
+
+// (optional) Configure where snapshot failure files wil be created.
+//
+// Default value: Feature snapshots path + /failures.
+$CFG->behat_snapshots_failures_path = '/var/www/html/local/behatsnapshots/snapshot_failures';
 
 // (optional) Threshold to consider image differences a regression.
 // This value will be used for comparing UI snapshots, and is only relevant

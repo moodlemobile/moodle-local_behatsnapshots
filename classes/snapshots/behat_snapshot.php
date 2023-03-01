@@ -18,6 +18,11 @@ abstract class behat_snapshot {
     protected $name;
 
     /**
+     * @var string
+     */
+    protected $snapshotspath;
+
+    /**
      * @var array
      */
     protected $options;
@@ -37,9 +42,10 @@ abstract class behat_snapshot {
      */
     protected $storedcontent;
 
-    public function __construct(Session $session, string $name, array $options = []) {
+    public function __construct(Session $session, string $name, string $snapshotspath, array $options = []) {
         $this->session = $session;
         $this->name = $name;
+        $this->snapshotspath = $snapshotspath;
         $this->options = $options;
     }
 
@@ -75,35 +81,28 @@ abstract class behat_snapshot {
     }
 
     protected function store_failure_diffs(): string {
-        $directory = $this->get_directory('failures');
-
-        file_put_contents($this->get_file_path('-original', 'failures'), $this->get_stored_content());
-        file_put_contents($this->get_file_path('-changed', 'failures'), $this->get_current_content());
-
-        return $directory;
-    }
-
-    protected function get_directory(?string $subdirectory = null): string {
         global $CFG;
 
-        $directory = $CFG->behat_snapshots_path ?? '';
+        $failuresdirectory = $CFG->behat_snapshots_failures_path ?? '';
 
-        if (empty($directory)) {
-            throw new Exception('Missing $CFG->behat_snapshots_path config.');
+        if (empty($failuresdirectory)) {
+            $snapshotsdirectory = $this->create_directory();
+            $failuresdirectory = "{$snapshotsdirectory}failures/";
         }
 
-        $directory = $this->create_directory($directory);
+        $failuresdirectory = $this->create_directory($failuresdirectory);
 
-        if (!is_null($subdirectory)) {
-            $directory = $this->create_directory($directory . $subdirectory);
-        }
+        file_put_contents($this->get_file_path(['suffix' => '-original', 'directory' => $failuresdirectory]), $this->get_stored_content());
+        file_put_contents($this->get_file_path(['suffix' => '-changed', 'directory' => $failuresdirectory]), $this->get_current_content());
 
-        return $directory;
+        return $failuresdirectory;
     }
 
-    protected function get_file_path(string $suffix = '', ?string $subdirectory = null, ?string $extension = null): string {
-        $filename = $this->get_directory($subdirectory) . $this->name . $suffix;
-        $extension ??= $this->extension;
+    protected function get_file_path(array $options = []): string {
+        $suffix = $options['suffix'] ?? '';
+        $extension = $options['extension'] ?? $this->extension;
+        $directory = $options['directory'] ?? $this->create_directory();
+        $filename = $directory . $this->name . $suffix;
 
         if (!is_null($extension)) {
             $filename .= ".{$extension}";
@@ -130,7 +129,11 @@ abstract class behat_snapshot {
         return $this->currentcontent;
     }
 
-    protected function create_directory(string $directory): string {
+    protected function create_directory(?string $directory = null): string {
+        global $CFG;
+
+        $directory ??= $CFG->behat_snapshots_path ?? $this->snapshotspath;
+
         if (!str_ends_with($directory, DIRECTORY_SEPARATOR)) {
             $directory .= DIRECTORY_SEPARATOR;
         }
@@ -140,7 +143,7 @@ abstract class behat_snapshot {
         }
 
         if (!@mkdir($directory, 0777, true)) {
-            throw new Exception("Cannot create $directory directory, check permissions.");
+            throw new Exception("Cannot create $directory directory.");
         }
 
         return $directory;

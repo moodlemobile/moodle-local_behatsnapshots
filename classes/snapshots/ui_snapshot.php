@@ -52,7 +52,7 @@ class ui_snapshot extends behat_snapshot {
                 "Imagick extension is missing, install it if you want to get better image diffs.";
         }
 
-        file_put_contents($this->get_file_path('-diff', 'failures'), $this->diffimage);
+        file_put_contents($this->get_file_path(['suffix' => '-diff', 'directory' => $failuresdirectory]), $this->diffimage);
 
         return "Snapshots are {$this->diff} different.\n" .
             "You can compare the differences looking at the files in $failuresdirectory.";

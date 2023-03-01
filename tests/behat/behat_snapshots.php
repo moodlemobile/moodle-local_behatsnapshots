@@ -26,7 +26,12 @@ class behat_snapshots extends behat_base {
     /**
      * @var string
      */
-    protected $currentscenario;
+    protected $currentscenarioname;
+
+    /**
+     * @var string
+     */
+    protected $currentscenariopath;
 
     /**
      * @var int
@@ -40,7 +45,8 @@ class behat_snapshots extends behat_base {
         $this->createssnapshots = $scope->getFeature()->hasTag('creates_snapshots') || $scope->getScenario()->hasTag('creates_snapshots');
         $this->overridessnapshots = $scope->getFeature()->hasTag('overrides_snapshots') || $scope->getScenario()->hasTag('overrides_snapshots');
         $this->ismobileapp = $scope->getFeature()->hasTag('app') || $scope->getScenario()->hasTag('app');
-        $this->currentscenario = $this->get_scenario_slug($scope);
+        $this->currentscenarioname = $this->get_scenario_slug($scope);
+        $this->currentscenariopath = dirname($scope->getFeature()->getFile());
         $this->currentstep = 0;
     }
 
@@ -112,7 +118,12 @@ class behat_snapshots extends behat_base {
         $type = strtolower($type);
         $snapshotclass = 'local_behatsnapshots\\snapshots\\'.$type.'_snapshot';
 
-        return new $snapshotclass($this->getSession(), "{$this->currentscenario}_{$this->currentstep}", ['mobile' => $this->ismobileapp]);
+        return new $snapshotclass(
+            $this->getSession(),
+            "{$this->currentscenarioname}_{$this->currentstep}",
+            "$this->currentscenariopath/snapshots/",
+            ['mobile' => $this->ismobileapp]
+        );
     }
 
     protected function get_scenario_slug(ScenarioScope $scope): string {

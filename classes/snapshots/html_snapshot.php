@@ -28,7 +28,7 @@ class html_snapshot extends behat_snapshot {
     public function diff(): string {
         $failuresdirectory = $this->store_failure_diffs();
 
-        file_put_contents($this->get_file_path('', 'failures', 'diff'), $this->diff);
+        file_put_contents($this->get_file_path(['extension' => 'diff', 'directory' => $failuresdirectory]), $this->diff);
 
         if (strlen($this->diff) > 300) {
             return "You can compare the differences looking at the files in $failuresdirectory.";
