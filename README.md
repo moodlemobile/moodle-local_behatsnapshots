@@ -8,7 +8,7 @@ Visual and HTML regressions are specially hard to detect with automated testing,
 
 In order to use the custom steps, you need to include this plugin in your Moodle installation. This is only necessary for testing and development environments; make sure not to include it in production.
 
-You'll also need to add the following attributes in your `config.php`:
+You can also add the following attributes in your `config.php` to customize the behaviour:
 
 ```php
 // (optional) Configure where snapshot files will be created and read from.
@@ -16,7 +16,7 @@ You'll also need to add the following attributes in your `config.php`:
 // Default value: Feature file directory + /snapshots.
 $CFG->behat_snapshots_path = '/var/www/html/local/behatsnapshots/snapshots';
 
-// (optional) Configure where snapshot failure files wil be created.
+// (optional) Configure where snapshot failure files will be created.
 //
 // Default value: Feature snapshots path + /failures.
 $CFG->behat_snapshots_failures_path = '/var/www/html/local/behatsnapshots/snapshot_failures';

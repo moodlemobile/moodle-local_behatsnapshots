@@ -2,6 +2,8 @@
 
 namespace local_behatsnapshots\snapshots;
 
+use Behat\Mink\Exception\UnsupportedDriverActionException;
+use Exception;
 use Imagick;
 
 class ui_snapshot extends behat_snapshot {
@@ -63,7 +65,13 @@ class ui_snapshot extends behat_snapshot {
     }
 
     protected function load_content() {
-        return $this->session->getScreenshot();
+        try {
+            return $this->session->getScreenshot();
+        } catch (UnsupportedDriverActionException $e) {
+            $driver = get_class($this->session->getdriver());
+
+            throw new Exception("Screenshots are not supported by the current driver: $driver (did you forget to use the @javascript tag?)");
+        }
     }
 
     protected function get_stored_image() {
