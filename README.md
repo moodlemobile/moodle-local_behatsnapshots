@@ -22,12 +22,13 @@ $CFG->behat_snapshots_path = '/var/www/html/local/behatsnapshots/snapshots';
 $CFG->behat_snapshots_failures_path = '/var/www/html/local/behatsnapshots/snapshot_failures';
 
 // (optional) Threshold to consider image differences a regression.
-// This value will be used for comparing UI snapshots, and is only relevant
-// when the imagick PHP extension is installed. Images are compared using the
-// Root Mean Squared metric.
+// This value is the percentage of pixels that have changed, and it goes from 0 to 100. Using 0 would mean
+// that no errors are tolerated, but it's not recommended to use this value because some small differences
+// are expected depending on the environment. Using 100 would mean that 100% errors are tolerated, so that
+// value is not recomended either.
 //
-// Default value: 0.005.
-$CFG->behat_snapshots_image_threshold = 0.01;
+// Default value: 0.05.
+$CFG->behat_snapshots_image_threshold = 2;
 ```
 
 ### Comparing snapshots

@@ -4,64 +4,44 @@ namespace local_behatsnapshots\snapshots;
 
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Exception;
-use Imagick;
+use local_behatsnapshots\graphics\image;
+use local_behatsnapshots\graphics\image_diff;
 
 class ui_snapshot extends behat_snapshot {
 
     protected $extension = 'png';
 
     /**
-     * @var Imagick
+     * @var image
      */
     protected $currentimage;
 
     /**
-     * @var Imagick
+     * @var image
      */
     protected $storedimage;
 
     /**
-     * @var float
+     * @var image_diff
      */
     protected $diff;
 
-    /**
-     * @var Imagick
-     */
-    protected $diffimage;
-
     public function matches(): bool {
-        if (!$this->imagick_available()) {
-            return parent::matches();
-        }
-
         global $CFG;
 
-        [$diffimage, $diff] = $this->get_stored_image()->compareImages($this->get_current_image(), Imagick::METRIC_ROOTMEANSQUAREDERROR);
+        $threshold = $CFG->behat_snapshots_image_threshold ?? 0.05;
+        $this->diff = $this->get_stored_image()->compare($this->get_current_image());
 
-        $threshold = $CFG->behat_snapshots_image_threshold ?? 0.005;
-        $this->diff = $diff;
-        $this->diffimage = $diffimage;
-
-        return $diff <= $threshold;
+        return $this->diff->percentage() <= $threshold;
     }
 
     public function diff(): string {
         $failuresdirectory = $this->store_failure_diffs();
 
-        if (!$this->imagick_available()) {
-            return "You can compare the differences looking at the files in $failuresdirectory.\n" .
-                "Imagick extension is missing, install it if you want to get better image diffs.";
-        }
+        $this->diff->save($this->get_file_path(['suffix' => '-diff', 'directory' => $failuresdirectory]));
 
-        file_put_contents($this->get_file_path(['suffix' => '-diff', 'directory' => $failuresdirectory]), $this->diffimage);
-
-        return "Snapshots are {$this->diff} different.\n" .
+        return "Snapshots are {$this->diff->percentage()}% different.\n" .
             "You can compare the differences looking at the files in $failuresdirectory.";
-    }
-
-    protected function imagick_available(): bool {
-        return class_exists('Imagick');
     }
 
     protected function load_content() {
@@ -74,19 +54,17 @@ class ui_snapshot extends behat_snapshot {
         }
     }
 
-    protected function get_stored_image() {
+    protected function get_stored_image(): image {
         if (is_null($this->storedimage)) {
-            $this->storedimage = new Imagick($this->get_file_path());
+            $this->storedimage = image::from_file($this->get_file_path());
         }
 
         return $this->storedimage;
     }
 
-    protected function get_current_image() {
+    protected function get_current_image(): image {
         if (is_null($this->currentimage)) {
-            $this->currentimage = new Imagick();
-
-            $this->currentimage->readImageBlob($this->get_current_content());
+            $this->currentimage = image::from_blob($this->get_current_content());
         }
 
         return $this->currentimage;
