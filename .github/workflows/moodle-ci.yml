@@ -73,4 +73,4 @@ jobs:
         if: ${{ failure() }}
         with:
           name: snapshot_failures
-          path: moodle/local/behatsnapshots/snapshots/failures/*
+          path: moodle/local/behatsnapshots/tests/behat/snapshots/failures/*
