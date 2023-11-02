@@ -27,9 +27,8 @@ class ui_snapshot extends behat_snapshot {
     protected $diff;
 
     public function matches(): bool {
-        global $CFG;
-
-        $threshold = $CFG->behat_snapshots_image_threshold ?? 0.05;
+        $threshold = get_config('local_behatsnapshots', 'image_threshold');
+        $threshold = isset($threshold) ? floatval($threshold) : 0.05;
         $this->diff = $this->get_stored_image()->compare($this->get_current_image());
 
         return $this->diff->percentage() <= $threshold;

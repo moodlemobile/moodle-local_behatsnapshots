@@ -49,10 +49,10 @@ class html_snapshot extends behat_snapshot {
     }
 
     protected function get_replacements(): array {
-        global $CFG;
+        $replacements = @json_decode(get_config('local_behatsnapshots', 'replacements'));
 
-        if (isset($CFG->behat_snapshots_replacements)) {
-            return $CFG->behat_snapshots_replacements;
+        if (isset($replacements)) {
+            return $replacements;
         }
 
         if ($this->is_mobile()) {

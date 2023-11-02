@@ -81,9 +81,7 @@ abstract class behat_snapshot {
     }
 
     protected function store_failure_diffs(): string {
-        global $CFG;
-
-        $failuresdirectory = $CFG->behat_snapshots_failures_path ?? '';
+        $failuresdirectory = get_config('local_behatsnapshots', 'failures_path') ?? '';
 
         if (empty($failuresdirectory)) {
             $snapshotsdirectory = $this->create_directory();
@@ -130,9 +128,7 @@ abstract class behat_snapshot {
     }
 
     protected function create_directory(?string $directory = null): string {
-        global $CFG;
-
-        $directory ??= $CFG->behat_snapshots_path ?? $this->snapshotspath;
+        $directory ??= get_config('local_behatsnapshots', 'path') ?? $this->snapshotspath;
 
         if (!str_ends_with($directory, DIRECTORY_SEPARATOR)) {
             $directory .= DIRECTORY_SEPARATOR;

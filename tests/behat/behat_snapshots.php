@@ -147,10 +147,9 @@ class behat_snapshots extends behat_base {
     }
 
     protected function is_disabled(): bool {
-        global $CFG;
+        $disabled = getenv('MOODLE_BEHATSNAPSHOTS_DISABLED') ?? get_config('local_behatsnapshots', 'disabled') ?? 'false';
 
-        return $CFG->behat_snapshots_disabled
-            ?? filter_var(getenv('MOODLE_BEHATSNAPSHOTS_DISABLED'), FILTER_VALIDATE_BOOLEAN);
+        return filter_var($disabled, FILTER_VALIDATE_BOOLEAN);
     }
 
 }

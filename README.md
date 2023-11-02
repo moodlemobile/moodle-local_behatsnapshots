@@ -2,33 +2,37 @@
 
 This plugin adds custom Behat steps to test against visual and HTML regressions.
 
-Visual and HTML regressions are specially hard to detect with automated testing, because things like style changes can have unintended consequences that don't break functionality but cause small graphical glitches. And accesibility changes in the HTML can also go unnoticed. The way snapshot testing works is that snapshot files are created during development, and committed alongside the source code in the repository. Then, in CI environments and during further development, new snapshots are generated and compared against the previous ones. If anything has changed unintentionally, it will thus be detected and reported.
+Visual and HTML regressions are specially hard to detect with automated testing, because things like style changes can have unintended consequences that don't break functionality but cause small graphical glitches. And accessibility changes in the HTML can also go unnoticed. The way snapshot testing works is that snapshot files are created during development, and committed alongside the source code in the repository. Then, in CI environments and during further development, new snapshots are generated and compared against the previous ones. If anything has changed unintentionally, it will thus be detected and reported.
 
 ## Configuration and usage
 
 In order to use the custom steps, you need to include this plugin in your Moodle installation. This is only necessary for testing and development environments; make sure not to include it in production.
 
-You can also add the following attributes in your `config.php` to customize the behaviour:
+You can also add the following plugin config to customize the behaviour (for example, in `config.php`):
 
 ```php
-// (optional) Configure where snapshot files will be created and read from.
-//
-// Default value: Feature file directory + /snapshots.
-$CFG->behat_snapshots_path = '/var/www/html/local/behatsnapshots/snapshots';
+$CFG->forced_plugin_settings = [
+    'local_behatsnapshots' => [
+        // (optional) Configure where snapshot files will be created and read from.
+        //
+        // Default value: Feature file directory + /snapshots.
+        'path' => '/var/www/html/local/behatsnapshots/snapshots',
 
-// (optional) Configure where snapshot failure files will be created.
-//
-// Default value: Feature snapshots path + /failures.
-$CFG->behat_snapshots_failures_path = '/var/www/html/local/behatsnapshots/snapshot_failures';
+        // (optional) Configure where snapshot failure files will be created.
+        //
+        // Default value: Feature snapshots path + /failures.
+        'failures_path' => '/var/www/html/local/behatsnapshots/snapshot_failures',
 
-// (optional) Threshold to consider image differences a regression.
-// This value is the percentage of pixels that have changed, and it goes from 0 to 100. Using 0 would mean
-// that no errors are tolerated, but it's not recommended to use this value because some small differences
-// are expected depending on the environment. Using 100 would mean that 100% errors are tolerated, so that
-// value is not recomended either.
-//
-// Default value: 0.05.
-$CFG->behat_snapshots_image_threshold = 2;
+        // (optional) Threshold to consider image differences a regression.
+        // This value is the percentage of pixels that have changed, and it goes from 0 to 100. Using 0 would mean
+        // that no errors are tolerated, but it's not recommended to use this value because some small differences
+        // are expected depending on the environment. Using 100 would mean that 100% errors are tolerated, so that
+        // value is not recommended either.
+        //
+        // Default value: 0.05.
+        'image_threshold' => 2,
+    ],
+];
 ```
 
 ### Comparing snapshots
@@ -64,7 +68,7 @@ However, with the current implementation, HTML comparison is mostly string based
 
 #### Regular expressions
 
-If some parts are expected to change, they can be replaced with regular expressions which will be used when comparing the lines. Regexes should be encapsulated within `[[]]`, check out the following example for reference:
+If some parts are expected to change, they can be replaced with regular expressions which will be used when comparing the lines. RegExes should be encapsulated within `[[]]`, check out the following example for reference:
 
 ```html
 <div>
@@ -84,13 +88,15 @@ With the snapshot above, the following html would match:
 
 #### Replacements
 
-If some parts are known to be problematic but are not relevant to the HTML output, the can be replaced using the `behat_snapshots_replacements` configuration.
+If some parts are known to be problematic but are not relevant to the HTML output, these can be replaced using the `replacements` configuration. This should be a json object where the keys are regular expressions, and the values their replacements.
 
 For example, given the following configuration:
 
 ```php
-$CFG->behat_snapshots_replacements = [
-    '/ style=".*"/' => '',
+$CFG->forced_plugin_settings = [
+    'local_behatsnapshots' => [
+        'replacements' => '{"/ style=\".*?\"/":""}',
+    ],
 ];
 ```
 
@@ -110,7 +116,7 @@ The following two HTML snapshots would be considered equal, because the style at
 
 ### Comparing UI
 
-In some ocassions, there may be parts of the UI that are variable. Those should be minimised by setting predictable values with generators, but if that's not possible the following helpers may be useful. You will normally call these before taking a UI snapshot.
+In some occasions, there may be parts of the UI that are variable. Those should be minimised by setting predictable values with generators, but if that's not possible the following helpers may be useful. You will normally call these before taking a UI snapshot.
 
 #### Replacements
 
@@ -146,7 +152,7 @@ However, keep in mind that given the nature of the app and its heavy reliance on
 
 ### Disable snapshots
 
-If you want to disable running snapshot comparisons in the current environment, you can set the `MOODLE_BEHATSNAPSHOTS_DISABLED` env variable or the `$CFG->behat_snapshots_disabled` config to `true`.
+If you want to disable running snapshot comparisons in the current environment, you can set the `MOODLE_BEHATSNAPSHOTS_DISABLED` env variable or the `disabled` plugin config to `true`.
 
 ## Examples
 
