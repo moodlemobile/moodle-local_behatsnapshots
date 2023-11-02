@@ -43,12 +43,10 @@ jobs:
           echo "NVM_DIR=$HOME/.nvm" >> $GITHUB_ENV
 
       - name: Add local_moodleappbehat
-        run: moodle-plugin-ci add-plugin moodlehq/moodle-local_moodleappbehat --branch integration
+        run: moodle-plugin-ci add-plugin moodlehq/moodle-local_moodleappbehat --branch latest
 
       - name: Install moodle-plugin-ci
-        run: |
-          moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
-          moodle-plugin-ci add-config "\$CFG->behat_snapshots_path = '`pwd`/moodle/local/behatsnapshots/snapshots';"
+        run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
           DB: pgsql
           MOODLE_BRANCH: v4.1.0
