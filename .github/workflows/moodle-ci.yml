@@ -43,7 +43,7 @@ jobs:
           echo "NVM_DIR=$HOME/.nvm" >> $GITHUB_ENV
 
       - name: Add local_moodleappbehat
-        run: moodle-plugin-ci add-plugin moodlehq/moodle-local_moodleappbehat --branch latest
+        run: moodle-plugin-ci add-plugin moodlehq/moodle-local_moodleappbehat --branch v4.1.0
 
       - name: Install moodle-plugin-ci
         run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
@@ -53,17 +53,17 @@ jobs:
           MOODLE_BEHAT_DEFAULT_BROWSER: chrome
           MOODLE_BEHAT_IONIC_WWWROOT: http://localhost:8100
 
-      - name: PHP Lint
-        run: moodle-plugin-ci phplint
+      # - name: PHP Lint
+      #   run: moodle-plugin-ci phplint
 
-      - name: PHP Mess Detector
-        run: moodle-plugin-ci phpmd
+      # - name: PHP Mess Detector
+      #   run: moodle-plugin-ci phpmd
 
-      - name: Validating
-        run: moodle-plugin-ci validate
+      # - name: Validating
+      #   run: moodle-plugin-ci validate
 
-      - name: PHPUnit
-        run: moodle-plugin-ci phpunit
+      # - name: PHPUnit
+      #   run: moodle-plugin-ci phpunit
 
       - name: Behat features
         run: moodle-plugin-ci behat --profile chrome

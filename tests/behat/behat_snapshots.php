@@ -97,8 +97,10 @@ class behat_snapshots extends behat_base {
 
         if (!$snapshot->exists()) {
             if (!$this->createssnapshots) {
+                $path = $snapshot->get_file_path();
+
                 throw new ExpectationException(
-                    "There isn't a snapshot for step {$this->currentstep}, use the @creates_snapshots tag to create it.",
+                    "There isn't a snapshot for step {$this->currentstep}, use the @creates_snapshots tag to create it. (tried to get it from $path)",
                     $this->getSession()->getDriver()
                 );
             }
@@ -147,7 +149,7 @@ class behat_snapshots extends behat_base {
     }
 
     protected function is_disabled(): bool {
-        $disabled = getenv('MOODLE_BEHATSNAPSHOTS_DISABLED') ?? get_config('local_behatsnapshots', 'disabled') ?? 'false';
+        $disabled = getenv('MOODLE_BEHATSNAPSHOTS_DISABLED') ?: get_config('local_behatsnapshots', 'disabled') ?: 'false';
 
         return filter_var($disabled, FILTER_VALIDATE_BOOLEAN);
     }
