@@ -58,7 +58,7 @@ class behat_snapshots extends behat_base {
     }
 
     /**
-     * @Given I replace :text within :selector with :replacement
+     * @Given /^I replace "(.*)" within "(.*)" with "(.*)"$/
      */
     public function i_replace_with(string $text, string $selector, string $replacement) {
         $text = json_encode($text);
