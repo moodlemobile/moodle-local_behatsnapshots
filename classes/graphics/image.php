@@ -26,6 +26,8 @@ class image {
     public function compare(self $other): image_diff {
         $width = imagesx($this->data);
         $height = imagesy($this->data);
+        $otherwidth = imagesx($other->data);
+        $otherheight = imagesy($other->data);
         $diff = new image_diff($this);
 
         for ($x = 0; $x < $width; $x++) {
@@ -35,14 +37,19 @@ class image {
                 $originalgreen = ($originalcolor >> 8) & 0xFF;
                 $originalblue = $originalcolor & 0xFF;
 
-                $changedcolor = imagecolorat($other->data, $x, $y);
-                $changedred = ($changedcolor >> 16) & 0xFF;
-                $changedgreen = ($changedcolor >> 8) & 0xFF;
-                $changedblue = $changedcolor & 0xFF;
+                if ($x < $otherwidth && $y < $otherheight) {
+                    $changedcolor = imagecolorat($other->data, $x, $y);
+                    $changedred = ($changedcolor >> 16) & 0xFF;
+                    $changedgreen = ($changedcolor >> 8) & 0xFF;
+                    $changedblue = $changedcolor & 0xFF;
 
-                $distance = abs($originalred - $changedred);
-                $distance += abs($originalgreen - $changedgreen);
-                $distance += abs($originalblue - $changedblue);
+                    $distance = abs($originalred - $changedred);
+                    $distance += abs($originalgreen - $changedgreen);
+                    $distance += abs($originalblue - $changedblue);
+                } else {
+                    // Pixel is out of bounds in the other image, treat as maximum difference.
+                    $distance = 765; // Max difference (255 * 3).
+                }
 
                 $diff->set_pixel_distance($x, $y, $distance);
             }

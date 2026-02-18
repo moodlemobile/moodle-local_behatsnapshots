@@ -6,7 +6,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/testcase.php');
 
-class local_behatsnapshots_diff_testcase extends local_behatsnapshots_testcase {
+final class diff_test extends local_behatsnapshots_testcase {
 
     public function test_diffs_html() {
         $this->assertNull(diff::html('<div>Hello</div>', '<div>Hello</div>'));

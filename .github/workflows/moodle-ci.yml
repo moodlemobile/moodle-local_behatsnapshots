@@ -2,23 +2,27 @@ name: Moodle Plugin CI
 
 on: [push, pull_request, workflow_dispatch]
 
+concurrency:
+  group: moodle-ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     services:
       postgres:
-        image: postgres:12
+        image: postgres:16
         env:
-          POSTGRES_USER: 'postgres'
-          POSTGRES_HOST_AUTH_METHOD: 'trust'
+          POSTGRES_USER: "postgres"
+          POSTGRES_HOST_AUTH_METHOD: "trust"
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
       moodleapp:
-        image: moodlehq/moodleapp:4.1.0-test
+        image: moodlehq/moodleapp:5.1.0-test
         ports:
-          - 8100:80
+          - 8100:443
 
     steps:
       - name: Check out repository code
@@ -26,16 +30,16 @@ jobs:
         with:
           path: plugin
 
-      - name: Setup PHP 8.0
+      - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.0
+          php-version: 8.3
           ini-values: max_input_vars=5000
           coverage: none
 
       - name: Initialise moodle-plugin-ci
         run: |
-          git clone https://github.com/NoelDeMartin/moodle-plugin-ci --branch moodle-app-wip ci
+          git clone https://github.com/moodlehq/moodle-plugin-ci ci
           composer install -d ./ci
           echo $(cd ci/bin; pwd) >> $GITHUB_PATH
           echo $(cd ci/vendor/bin; pwd) >> $GITHUB_PATH
@@ -43,15 +47,16 @@ jobs:
           echo "NVM_DIR=$HOME/.nvm" >> $GITHUB_ENV
 
       - name: Add local_moodleappbehat
-        run: moodle-plugin-ci add-plugin moodlehq/moodle-local_moodleappbehat --branch v4.1.0
+        run: moodle-plugin-ci add-plugin moodlehq/moodle-local_moodleappbehat --branch v5.1.0
 
       - name: Install moodle-plugin-ci
         run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
           DB: pgsql
-          MOODLE_BRANCH: v4.1.0
+          MOODLE_BRANCH: v5.1.3
           MOODLE_BEHAT_DEFAULT_BROWSER: chrome
-          MOODLE_BEHAT_IONIC_WWWROOT: http://localhost:8100
+          MOODLE_BEHAT_IONIC_WWWROOT: https://localhost:8100
+          MOODLE_BEHAT_CHROME_CAPABILITIES: "['extra_capabilities' => ['chromeOptions' => ['args' => ['--ignore-certificate-errors', '--allow-running-insecure-content'], 'prefs' => ['credentials_enable_service' => false, 'profile.password_manager_enabled' => false, 'profile.password_manager_leak_detection' => false]]]]"
 
       - name: PHP Lint
         run: moodle-plugin-ci phplint
@@ -69,8 +74,8 @@ jobs:
         run: moodle-plugin-ci behat --profile chrome
 
       - name: Upload Snapshot failures
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
           name: snapshot_failures
-          path: moodle/local/behatsnapshots/tests/behat/snapshots/failures/*
+          path: moodle/public/local/behatsnapshots/tests/behat/snapshots/failures/*
